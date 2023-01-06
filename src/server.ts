@@ -1,6 +1,7 @@
-import express, { request, response, NextFunction } from "express";
+import express, { Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 import dotenv from "dotenv";
+import userRoutes from "./routes/user";
 
 dotenv.config();
 
@@ -10,20 +11,19 @@ const app = express();
 
 app.use(morgan("dev"));
 
-app.use((req, res, next) => {
-  console.log(process.env.NAME);
-  res.status(200).json({
-    message: "OK",
-  });
-});
+app.use("/user", userRoutes);
 
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   const error = new Error("Not found");
   next(error);
 });
 
-app.use((req, res, next) => {
-  console.log(req.errored);
+app.use((error: Error, req: Request, res: Response) => {
+  res.json({
+    error: {
+      message: error.message,
+    },
+  });
 });
 
 app.listen(port);
